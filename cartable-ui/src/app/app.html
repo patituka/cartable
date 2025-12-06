@@ -1,0 +1,222 @@
+<div class="d-flex flex-column min-vh-100 text-body selection-indigo">
+
+  <!-- Background Gradient Mesh -->
+  <div class="position-fixed top-0 start-0 w-100 h-100 pe-none z-n1">
+    <div class="blob blob-indigo position-absolute top-0 start-0 translate-middle-x ms-5 mt-n5"></div>
+    <div class="blob blob-violet position-absolute top-0 end-0 translate-middle-x me-5 mt-5"></div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="navbar sticky-top bg-white bg-opacity-75 backdrop-blur-xl border-bottom z-3">
+    <div class="container-xxl">
+      <div class="d-flex justify-content-between align-items-center w-100 py-2">
+        <div class="d-flex align-items-center">
+          <div class="d-flex align-items-center cursor-pointer" (click)="resetFilters(); selectedResource.set(null)">
+            <div class="bg-gradient-primary rounded-3 p-2 me-3 shadow-custom-sm transition-all">
+              <lucide-icon name="book-open" class="text-white" [size]="20"></lucide-icon>
+            </div>
+            <span class="fw-bold fs-4 text-dark ls-tight group-hover-text-primary transition-colors">Cartable</span>
+          </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+          @if (currentUser()) {
+          <button (click)="isCreditModalOpen.set(true)"
+            class="btn d-none d-sm-flex align-items-center px-3 py-2 rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle fw-bold hover-bg-warning-subtle transition-colors">
+            <lucide-icon name="coins" class="text-warning me-2" [size]="16"></lucide-icon>
+            {{currentUser()!.credits}}
+          </button>
+
+          <div class="position-relative">
+            <button (click)="toggleNotifications()"
+              class="btn btn-link text-secondary p-2 rounded-circle hover-bg-light position-relative">
+              <lucide-icon name="bell" [size]="20"></lucide-icon>
+              @if (hasUnreadNotifications) {
+              <span
+                class="position-absolute top-0 end-0 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
+              }
+            </button>
+
+            <!-- Notifications Dropdown -->
+            @if (showNotifications()) {
+            <div class="position-absolute end-0 mt-2 bg-white rounded-4 shadow-custom-lg border overflow-hidden z-3"
+              style="width: 20rem;">
+              <div class="p-3 border-bottom font-weight-bold text-muted small">Notifications</div>
+              <div class="overflow-auto" style="max-height: 16rem;">
+                @if (notifications().length > 0) {
+                @for (n of notifications(); track n.id) {
+                <div [class]="'p-3 border-bottom hover-bg-light ' + (!n.read ? 'bg-indigo-subtle' : '')">
+                  <p class="mb-1 small text-dark">{{n.message}}</p>
+                  <span class="small text-muted d-block">{{n.date | date:'shortDate'}}</span>
+                </div>
+                }
+                } @else {
+                <div class="p-4 text-center text-muted small">Aucune notification</div>
+                }
+              </div>
+            </div>
+            }
+          </div>
+
+          <app-button (click)="isUploadModalOpen.set(true)">
+            <lucide-icon name="plus" class="me-2" [size]="16"></lucide-icon>
+            Partager
+          </app-button>
+
+          <div class="d-flex align-items-center gap-3 ms-2 ps-3 border-start">
+            <div
+              class="rounded-circle bg-indigo-subtle d-flex align-items-center justify-content-center text-primary fw-bold border border-primary-subtle"
+              style="width: 2rem; height: 2rem;">
+              {{currentUser()!.name.charAt(0)}}
+            </div>
+            <button (click)="handleLogout()" class="btn btn-link text-secondary hover-text-danger p-0">
+              <lucide-icon name="log-out" [size]="20"></lucide-icon>
+            </button>
+          </div>
+          } @else {
+          <app-button variant="google" (click)="handleLogin()">
+            <lucide-icon name="mail" class="me-2" [size]="16"></lucide-icon>
+            Se connecter avec Gmail
+          </app-button>
+          }
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <div class="position-relative py-5 px-3 overflow-hidden text-center header-section">
+    <div class="container-md">
+      <div
+        class="d-inline-flex align-items-center px-3 py-1 rounded-pill bg-white border text-muted small mb-4 shadow-sm">
+        <lucide-icon name="stars" class="text-warning me-2" [size]="12"></lucide-icon>
+        Rejoignez {{mockUsersCount + 142}} professeurs connectés
+      </div>
+
+      <h1 class="display-3 fw-bold mb-4" style="letter-spacing: -0.025em;">
+        Mutualisons nos <br />
+        <span class="text-gradient-primary">
+          ressources pédagogiques
+        </span>
+      </h1>
+
+      <p class="lead text-secondary mb-5 mx-auto" style="max-width: 40rem;">
+        Accédez à des séquences de qualité. Partagez vos travaux pour gagner des crédits.
+        Débloquez le potentiel de votre classe.
+      </p>
+
+      <div class="position-relative mx-auto" style="max-width: 40rem;">
+        <div class="position-absolute top-50 start-0 translate-middle-y ps-4 pe-none z-1">
+          <lucide-icon name="search" class="text-secondary" [size]="20"></lucide-icon>
+        </div>
+        <input type="text"
+          class="form-control form-control-lg rounded-pill border py-3 ps-5 shadow-custom-lg focus-ring"
+          style="padding-left: 3.5rem !important;" placeholder="Rechercher par titre, mot-clé, auteur..."
+          [ngModel]="filters().search" (ngModelChange)="updateFilterSearch($event)" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="flex-grow-1 container-xxl py-5 position-relative z-1">
+    <div class="row g-4">
+
+      <!-- Filters Sidebar -->
+      @if (showFilters()) {
+      <app-filters-sidebar [isMobile]="false" [filters]="filters()" [levels]="levels" [subjects]="subjects"
+        (onUpdateLevel)="updateFilterLevel($event)"
+        (onUpdateSubject)="updateFilterSubject($event)"></app-filters-sidebar>
+      }
+      <!-- Results Grid -->
+      <section class="col transition-all">
+        <div class="mb-4 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3">
+          <div class="d-flex align-items-center gap-3">
+            <button (click)="toggleFilters()"
+              [class]="'btn d-flex align-items-center fw-medium rounded-3 px-3 py-2 border transition-all ' + (showFilters() ? 'bg-white border-light text-secondary hover-bg-light' : 'btn-dark shadow-lg')">
+              @if (showFilters()) { <lucide-icon name="panel-left-close" class="me-2" [size]="16"></lucide-icon> }
+              @else { <lucide-icon name="panel-left-open" class="me-2" [size]="16"></lucide-icon> }
+              {{showFilters() ? 'Masquer filtres' : 'Filtrer'}}
+            </button>
+            <h2 class="h5 fw-bold text-dark mb-0">
+              {{filteredResources().length}} séquence{{filteredResources().length > 1 ? 's' : ''}}
+            </h2>
+          </div>
+        </div>
+
+        @if (filteredResources().length > 0) {
+        <div [class]="'row g-4 row-cols-1 row-cols-md-2 ' + (showFilters() ? 'row-cols-lg-3' : 'row-cols-lg-4')">
+          @for (resource of filteredResources(); track resource.id) {
+          <div class="col">
+            <app-resource-card [resource]="resource" (onClick)="selectedResource.set($event)"></app-resource-card>
+          </div>
+          }
+        </div>
+        } @else {
+        <div class="text-center py-5 bg-white rounded-4 border border-dashed">
+          <div class="d-flex align-items-center justify-content-center mx-auto mb-3 bg-light rounded-circle"
+            style="width: 4rem; height: 4rem;">
+            <lucide-icon name="search" class="text-secondary" [size]="32"></lucide-icon>
+          </div>
+          <h3 class="h5 fw-medium text-dark">Aucune séquence trouvée</h3>
+          <p class="text-secondary small mx-auto" style="max-width: 20rem;">Essayez de modifier vos filtres ou
+            vos termes de recherche pour trouver ce que vous cherchez.</p>
+          <div class="mt-4">
+            <app-button variant="outline" (click)="resetFilters()">
+              Réinitialiser les filtres
+            </app-button>
+          </div>
+        </div>
+        }
+      </section>
+    </div>
+  </main>
+
+  <!-- Credit Modal -->
+  @if (isCreditModalOpen()) {
+  <div class="modal fade show d-block" tabindex="-1" role="dialog"
+    style="background-color: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px);" (click)="isCreditModalOpen.set(false)">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <!-- Overlay click handled by parent -->
+      <div class="modal-content rounded-4 shadow-lg p-4 position-relative z-1" (click)="$event.stopPropagation()">
+        <button type="button" class="btn-close position-absolute top-0 end-0 m-3" aria-label="Close"
+          (click)="isCreditModalOpen.set(false)"></button>
+        <div class="text-center mb-4">
+          <div class="bg-warning-subtle rounded-circle d-inline-flex p-3 mb-3">
+            <lucide-icon name="coins" class="text-warning-emphasis" [size]="32"></lucide-icon>
+          </div>
+          <h2 class="h4 fw-bold text-dark">Recharger vos crédits</h2>
+          <p class="text-secondary small">Utilisez vos crédits pour télécharger les meilleures séquences de la
+            communauté.</p>
+        </div>
+
+        <div class="d-flex flex-column gap-3">
+          @for (opt of [{ amount: 50, price: '5,00€', label: 'Découverte' }, { amount: 120, price: '10,00€',
+          label: 'Populaire', featured: true }, { amount: 300, price: '20,00€', label: 'Expert' }]; track
+          opt.amount) {
+          <button (click)="handleBuyCredits(opt.amount)"
+            [class]="'btn d-flex align-items-center justify-content-between p-3 rounded-4 border-2 transition-all w-100 ' + (opt.featured ? 'border-primary bg-indigo-subtle' : 'border-light hover-border-primary hover-bg-light')">
+            <div class="d-flex flex-column align-items-start">
+              <span style="letter-spacing: 0.05em;"
+                [class]="'small fw-bold text-uppercase mb-1 ' + (opt.featured ? 'text-primary' : 'text-secondary')">{{opt.label}}</span>
+              <span class="fw-bold h5 mb-0 text-dark">{{opt.amount}} Crédits</span>
+            </div>
+            <span class="fw-medium text-dark bg-white px-3 py-1 rounded border shadow-sm">{{opt.price}}</span>
+          </button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Modals -->
+  <app-upload-modal [isOpen]="isUploadModalOpen()" (onClose)="isUploadModalOpen.set(false)"
+    (onUpload)="handleUpload($event)" [currentUser]="currentUser()"
+    (onLoginRequest)="isUploadModalOpen.set(false); handleLogin();"></app-upload-modal>
+
+  @if (selectedResource()) {
+  <app-detail-view [resource]="selectedResource()!" (onClose)="selectedResource.set(null)" [currentUser]="currentUser()"
+    (onLoginRequest)="selectedResource.set(null); handleLogin();" (onPurchase)="handlePurchase($event)"
+    (onFollow)="handleFollow($event)"></app-detail-view>
+  }
+</div>

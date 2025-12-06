@@ -1,0 +1,5 @@
+cartable-api/.gradle/*
+.env
+/cartable-api/build
+cartable-ui/.vscode/extensions.json
+/cartable-ui/.vscode

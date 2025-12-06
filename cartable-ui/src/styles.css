@@ -1,0 +1,154 @@
+/* styles.css */
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
+/* 
+  Theme Overrides to match original "Cartable" design
+  Original Colors:
+  - Indigo 600 (Primary): #4f46e5
+  - Slate 50 (Bg): #f8fafc
+  - Slate 900 (Text): #0f172a
+*/
+:root {
+    --bs-primary: #4f46e5;
+    --bs-primary-rgb: 79, 70, 229;
+    --bs-body-bg: #f8fafc;
+    --bs-body-color: #0f172a;
+    --bs-border-radius: 0.75rem;
+    /* xl equivalent */
+    --bs-border-radius-lg: 1rem;
+    /* 2xl equivalent */
+    --bs-border-radius-xl: 1.5rem;
+    /* 3xl equivalent */
+    --bs-link-color: #4f46e5;
+    --bs-link-hover-color: #4338ca;
+}
+
+body {
+    font-family: system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Utilities missing in Bootstrap but used in design */
+
+/* Custom Gradients */
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+    /* Violet to Indigo */
+}
+
+.text-gradient-primary {
+    background: linear-gradient(to right, #7c3aed, #4f46e5, #0891b2);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+/* Glassmorphism / Blur */
+.backdrop-blur-sm {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.backdrop-blur-md {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.backdrop-blur-xl {
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+}
+
+/* Shadows */
+.shadow-custom-sm {
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+
+.shadow-custom-md {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.shadow-custom-lg {
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+.shadow-custom-xl {
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+/* Transitions */
+.transition-all {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+}
+
+.transition-colors {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+}
+
+/* Background Blobs */
+.blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.6;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.blob-indigo {
+    background-color: #e0e7ff;
+    /* indigo-100 */
+    width: 500px;
+    height: 500px;
+}
+
+.blob-violet {
+    background-color: #ede9fe;
+    /* violet-100 */
+    width: 400px;
+    height: 400px;
+}
+
+/* Custom Scrollbar helpers */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Bootstrap class extensions */
+.rounded-4 {
+    border-radius: 1rem !important;
+}
+
+.rounded-5 {
+    border-radius: 1.5rem !important;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.hover-bg-light:hover {
+    background-color: var(--bs-light) !important;
+}
+
+.hover-text-primary:hover {
+    color: var(--bs-primary) !important;
+}
+
+.hover-text-danger:hover {
+    color: var(--bs-danger) !important;
+}
+
+.hover-shadow-lg:hover {
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, .1) !important;
+    transform: translateY(-2px);
+}

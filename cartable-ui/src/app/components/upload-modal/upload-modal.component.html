@@ -1,0 +1,186 @@
+@if (!isOpen) { <span></span> }
+@else {
+<div class="modal fade show d-block" tabindex="-1" role="dialog"
+    style="background-color: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px);">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+
+        @if (!currentUser) {
+        <div class="modal-content shadow-lg rounded-4 p-4 text-center">
+            <div class="modal-body">
+                <div class="bg-indigo-subtle d-inline-flex rounded-circle p-3 mb-4">
+                    <lucide-icon name="upload-cloud" class="w-8 h-8 text-primary"></lucide-icon>
+                </div>
+                <h2 class="h4 fw-bold mb-2">Connectez-vous pour partager</h2>
+                <p class="text-secondary mb-4">Vous devez être membre de Cartable pour partager vos séquences et gagner
+                    des crédits.</p>
+                <div class="d-flex gap-3 justify-content-center">
+                    <app-button variant="outline" (click)="close()">Annuler</app-button>
+                    <app-button (click)="onLoginRequest.emit()">Se connecter</app-button>
+                </div>
+            </div>
+        </div>
+        } @else {
+        <div class="modal-content shadow-lg rounded-4 border-0" style="max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header border-bottom py-3 px-4 align-items-center">
+                <h5 class="modal-title fw-bold d-flex align-items-center">
+                    <span class="bg-indigo-subtle p-2 rounded-3 me-3 d-flex">
+                        <lucide-icon name="sparkles" class="w-5 h-5 text-primary"></lucide-icon>
+                    </span>
+                    Partager une séquence
+                </h5>
+                <button type="button" class="btn-close" (click)="close()" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                @if (step === 1) {
+                <div class="d-flex flex-column gap-4">
+                    <div>
+                        <label class="form-label fw-medium text-secondary small mb-2">Fichier de la séquence
+                            (PDF)</label>
+                        <div
+                            class="border-2 border-dashed border-secondary-subtle rounded-4 p-5 text-center hover-bg-light transition-all cursor-pointer position-relative">
+                            <input type="file" accept=".pdf"
+                                class="position-absolute top-0 start-0 w-100 h-100 opacity-0 cursor-pointer z-1"
+                                (change)="handleFileChange($event)" />
+                            <div>
+                                @if (fileName) {
+                                <div class="d-flex align-items-center justify-content-center text-primary fw-medium">
+                                    <lucide-icon name="file-text" class="w-8 h-8 me-2"></lucide-icon>
+                                    {{fileName}}
+                                </div>
+                                } @else {
+                                <lucide-icon name="upload-cloud"
+                                    class="d-block mx-auto w-12 h-12 text-secondary mb-3"></lucide-icon>
+                                <div class="d-flex justify-content-center align-items-center text-secondary small">
+                                    <span class="text-primary fw-medium bg-white rounded px-2">
+                                        Téléverser un fichier
+                                    </span>
+                                    <span class="ms-1">ou glisser-déposer</span>
+                                </div>
+                                <p class="small text-muted mt-1">PDF jusqu'à 10MB</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="form-label fw-medium text-secondary small mb-2">Titre de la séquence</label>
+                        <input type="text" [(ngModel)]="formData.title"
+                            class="form-control form-control-lg bg-light border-light-subtle rounded-3"
+                            placeholder="Ex: Le Romantisme et la Nature" />
+                    </div>
+
+                    <div>
+                        <label class="form-label fw-medium text-secondary small mb-2">Décrivez votre séquence
+                            (brouillon)</label>
+                        <textarea [(ngModel)]="formData.rawDescription" rows="4"
+                            class="form-control bg-light border-light-subtle rounded-3"
+                            placeholder="J'ai fait un truc sur Victor Hugo, on a lu Demain dès l'aube..."></textarea>
+
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="form-label fw-medium text-secondary small mb-2">Matière</label>
+                            <select [(ngModel)]="formData.subject"
+                                class="form-select form-select-lg bg-light border-light-subtle rounded-3">
+                                @for (s of subjects; track s) {
+                                <option [value]="s">{{s}}</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-medium text-secondary small mb-2">Niveau</label>
+                            <select [(ngModel)]="formData.level"
+                                class="form-select form-select-lg bg-light border-light-subtle rounded-3">
+                                @for (l of levels; track l) {
+                                <option [value]="l">{{l}}</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end pt-3">
+                        <app-button (click)="handleEnhance()"
+                            [disabled]="!formData.title || !formData.rawDescription || isEnhancing || !fileName"
+                            className="w-100 w-sm-auto">
+                            @if (isEnhancing) {
+                            <lucide-icon name="loader-2" class="w-4 h-4 me-2 animate-spin"></lucide-icon> Optimisation
+                            via Gemini...
+                            } @else {
+                            <lucide-icon name="wand-2" class="w-4 h-4 me-2"></lucide-icon> Continuer avec l'assistant IA
+                            }
+                        </app-button>
+                    </div>
+                </div>
+                } @else {
+                <form (submit)="handleSubmit($event)" class="d-flex flex-column gap-4">
+                    <div class="bg-indigo-subtle p-4 rounded-3 border border-indigo-100">
+                        <h6 class="fw-bold text-primary mb-3 d-flex align-items-center small">
+                            <lucide-icon name="wand-2" class="w-4 h-4 me-2"></lucide-icon> Description optimisée
+                        </h6>
+                        <textarea [(ngModel)]="formData.finalDescription" name="finalDescription" rows="3"
+                            class="form-control border-indigo-200 text-dark small"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="form-label fw-medium text-secondary small mb-2">Prix (Crédits)</label>
+                        <div class="d-flex gap-3">
+                            <button type="button" (click)="formData.price = 0"
+                                [class]="'btn flex-grow-1 py-3 px-4 rounded-4 fw-medium border transition-all ' + (formData.price === 0 ? 'btn-success-subtle text-success border-success' : 'btn-outline-light border-secondary-subtle text-secondary')">
+                                Gratuit (0)
+                            </button>
+                            <div class="flex-grow-1 position-relative">
+                                <input type="number" min="1" max="50" [(ngModel)]="formData.price" name="price"
+                                    placeholder="Prix en crédits"
+                                    [class]="'form-control h-100 py-3 px-4 rounded-4 fw-medium border transition-all ' + (formData.price > 0 ? 'bg-warning-subtle text-warning-emphasis border-warning' : 'border-secondary-subtle')" />
+                                @if (formData.price > 0) {
+                                <span
+                                    class="position-absolute end-0 top-50 translate-middle-y me-3 text-warning-emphasis small fw-bold">Crédits</span>
+                                }
+                            </div>
+                        </div>
+                        <p class="small text-muted mt-2">
+                            {{formData.price === 0
+                            ? "Partager gratuitement permet aux autres de découvrir votre travail."
+                            : "Vous recevrez des crédits à chaque téléchargement."}}
+                        </p>
+                    </div>
+
+                    <div>
+                        <label class="form-label fw-medium text-secondary small mb-2">Tags suggérés</label>
+                        <div class="d-flex flex-wrap gap-2 align-items-center">
+                            @for (tag of formData.tags; track tag) {
+                            <span
+                                class="badge bg-light text-body border rounded-pill px-3 py-2 fw-normal d-flex align-items-center">
+                                #{{tag}}
+                                <button type="button" (click)="removeTag(tag)" class="btn-close ms-2"
+                                    style="width: 0.5em; height: 0.5em;"></button>
+                            </span>
+                            }
+                            <input type="text" placeholder="+ Ajouter"
+                                class="form-control form-control-sm d-inline-block w-auto border-0 border-bottom rounded-0 px-1"
+                                (keydown.enter)="addTag($event)" />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="form-label fw-medium text-secondary small mb-2">Plan détaillé de la séquence
+                            (Context pour l'IA)</label>
+                        <textarea [(ngModel)]="formData.contentDetails" name="contentDetails" rows="4"
+                            class="form-control bg-light border-light-subtle rounded-3 small"
+                            placeholder="Détaillez les séances (ex: Séance 1: Lecture...)"></textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-between pt-3 border-top mt-2">
+                        <app-button type="button" variant="ghost" (click)="step = 1">Retour</app-button>
+                        <app-button type="submit">Publier la séquence</app-button>
+                    </div>
+                </form>
+                }
+            </div>
+        </div>
+        }
+    </div>
+</div>
+}

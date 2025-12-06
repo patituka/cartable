@@ -1,0 +1,23 @@
+.bg-indigo-subtle {
+    background-color: #e0e7ff;
+}
+
+.hover-bg-light:hover {
+    background-color: #f8f9fa;
+}
+
+.w-8 {
+    width: 2rem;
+}
+
+.h-8 {
+    height: 2rem;
+}
+
+.w-12 {
+    width: 3rem;
+}
+
+.h-12 {
+    height: 3rem;
+}
